@@ -1,0 +1,11 @@
+# Beispiel-Cronjob fuer hAI.FullBackupScript
+# crontab -e  -> diese Zeile einfuegen
+
+# Taeglich um 03:00 Uhr, Log-Datei wird angelegt/ueberschrieben-erweitert
+0 3 * * * /bin/bash /home/Scripts/full_backup_<HOST_ID>.sh >> /home/Scripts/full_backup_<HOST_ID>.log 2>&1
+
+# Alternative: woechentlich Sonntags um 02:30 Uhr
+# 30 2 * * 0 /bin/bash /home/Scripts/full_backup_<HOST_ID>.sh >> /home/Scripts/full_backup_<HOST_ID>.log 2>&1
+
+# Hinweis: Pfad und Dateiname an dein tatsaechliches Script anpassen.
+# Mit 'crontab -l' pruefen, ob der Job korrekt eingetragen ist.

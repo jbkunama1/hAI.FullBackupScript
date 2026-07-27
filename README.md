@@ -1,5 +1,12 @@
 # hAI.FullBackupScript
 
+![Bash](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Backup-2496ED?logo=docker&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+![Maintained](https://img.shields.io/badge/maintained-yes-blue)
+
 Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Containern
 (Image + Volumes + optionalem DB-Dump) auf ein NAS, inklusive Crontab-Backup.
 
@@ -10,6 +17,7 @@ Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Container
 - **Datenbank-Dumps**: fuer Postgres-Container per `pg_dumpall` (logisch konsistent statt Dateisystem-Snapshot)
 - **Crontab-Backup**: sichert deine aktuelle Cron-Konfiguration mit
 - **Volume-Finder**: findet automatisch die Mount-Pfade jedes Containers
+- **Optional**: Fehler-Benachrichtigung (ntfy/E-Mail) und Versionierung mit Rollback
 
 ## Dateien
 
@@ -18,8 +26,11 @@ Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Container
 | `scripts/full_backup_template.sh` | Haupt-Backup-Script mit Platzhaltern |
 | `scripts/find_volumes.sh` | Ermittelt Volume-/Bind-Pfade aller Container |
 | `docs/ANLEITUNG.md` | Schritt-fuer-Schritt Setup-Anleitung |
+| `docs/RESTORE.md` | Wiederherstellung im Notfall |
 | `docs/index.html` | GitHub Pages Uebersichtsseite |
 | `docs/crontab_beispiel.txt` | Beispiel-Cronjob-Zeile |
+| `CHANGELOG.md` | Versionsverlauf des Templates |
+| `LICENSE` | MIT-Lizenz |
 
 ## Quickstart
 
@@ -30,6 +41,34 @@ Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Container
 5. Cronjob einrichten, siehe `docs/crontab_beispiel.txt`.
 
 Details siehe [docs/ANLEITUNG.md](docs/ANLEITUNG.md).
+
+## Optionale Features (seit v1.1.0)
+
+Im Kopf des Scripts stehen zwei Schalter, standardmaessig deaktiviert:
+
+```bash
+ENABLE_NOTIFICATIONS=false   # Fehler-Benachrichtigung per ntfy/E-Mail
+ENABLE_VERSIONING=false      # Zeitstempel-Ordner statt --delete (Rollback moeglich)
+```
+
+- **Benachrichtigung**: sendet nach jedem Lauf Erfolg/Fehler per ntfy oder E-Mail.
+- **Versionierung**: legt pro Lauf einen Zeitstempel-Ordner an statt zu ueberschreiben,
+  behaelt automatisch die letzten `VERSION_KEEP_COUNT` Versionen (Rollback moeglich).
+
+Details und Aktivierung siehe Abschnitt 8 in [docs/ANLEITUNG.md](docs/ANLEITUNG.md).
+
+## Wiederherstellung im Notfall
+
+Wenn ein Container oder eine Datenbank wiederhergestellt werden muss, folge
+[docs/RESTORE.md](docs/RESTORE.md). Dort findest du fertige Befehle fuer:
+
+- **Image-Restore**: `docker load` aus dem `.tar.gz` + `docker run`
+- **Volume/Bind-Restore**: `rsync` vom NAS zurueck auf den Host (Container vorher stoppen!)
+- **Datenbank-Restore**: SQL-Dump per `psql` in einen (neuen) Postgres-Container einspielen
+- **Crontab-Restore**: `crontab my_crontab_<HOST_ID>.backup`
+
+**Empfehlung**: Mindestens 1x pro Quartal einen echten Restore-Test auf einem
+Test-Host durchfuehren. Ein Backup, das nie zurueckgespielt wurde, ist nicht verifiziert.
 
 ## Platzhalter-Uebersicht
 
@@ -45,5 +84,5 @@ Details siehe [docs/ANLEITUNG.md](docs/ANLEITUNG.md).
 
 ## Lizenz
 
-Privates Nutzungs-Template, keine Gewaehrleistung fuer Datensicherheit.
-Immer Testlauf vor produktivem Einsatz durchfuehren.
+MIT-Lizenz, siehe [LICENSE](LICENSE). Keine Gewaehrleistung fuer Datensicherheit --
+immer Testlauf und Restore-Test vor produktivem Einsatz durchfuehren.
