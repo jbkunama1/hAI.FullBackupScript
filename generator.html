@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hAI.FullBackupScript - Generator</title>
+<style>
+  :root { --accent: #2496ED; --bg: #f7f8fa; --border: #ddd; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; max-width: 900px; margin: 30px auto; padding: 0 16px; color: #222; background: var(--bg); }
+  h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+  h2 { margin-top: 32px; }
+  fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; background: white; }
+  legend { font-weight: 600; padding: 0 6px; }
+  label { display: block; margin-top: 10px; font-size: 14px; font-weight: 500; }
+  input[type=text], select { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+  input[type=checkbox] { transform: scale(1.2); margin-right: 6px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 200px; }
+  .container-block { border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #fafafa; position: relative; }
+  .container-block .remove-btn { position: absolute; top: 8px; right: 8px; background: #e5484d; color: white; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+  button.primary { background: var(--accent); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-top: 10px; }
+  button.secondary { background: #eee; color: #222; border: 1px solid var(--border); padding: 8px 14px; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 10px; }
+  #output { width: 100%; min-height: 400px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #1e1e1e; color: #eee; white-space: pre; overflow-x: auto; }
+  .hint { font-size: 12px; color: #666; margin-top: 4px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<h1>hAI.FullBackupScript - Generator</h1>
+<p>Fuelle die Felder aus, fuege Container hinzu und generiere dein persoenliches Backup-Script.
+Alles laeuft lokal im Browser -- es werden keine Daten irgendwohin gesendet.</p>
+
+<h2>1. Host-Konfiguration</h2>
+<fieldset>
+  <legend>Basis-Einstellungen</legend>
+  <div class="row">
+    <div>
+      <label>Host-Name<span class="hint"> (z.B. highfish5)</span></label>
+      <input type="text" id="hostName" value="highfish5">
+    </div>
+    <div>
+      <label>Host-ID<span class="hint"> (z.B. 5, 10)</span></label>
+      <input type="text" id="hostId" value="5">
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <label>NAS Mount-Name<span class="hint"> (z.B. highfishNAS25)</span></label>
+      <input type="text" id="nasMount" value="highfishNAS25">
+    </div>
+    <div>
+      <label>Lokaler Zwischenspeicher-Pfad</label>
+      <input type="text" id="backupTmp" value="/home/BACKUP">
+    </div>
+  </div>
+  <label>Docker Image Prune Alter</label>
+  <input type="text" id="pruneAge" value="48h">
+</fieldset>
+
+<h2>2. Optionale Features</h2>
+<fieldset>
+  <legend>Fehler-Benachrichtigung &amp; Versionierung</legend>
+  <label><input type="checkbox" id="enableNotify"> Fehler-Benachrichtigung aktivieren</label>
+  <div class="row">
+    <div>
+      <label>Methode</label>
+      <select id="notifyMethod">
+        <option value="ntfy">ntfy</option>
+        <option value="mail">E-Mail</option>
+      </select>
+    </div>
+    <div>
+      <label>ntfy URL / E-Mail-Adresse</label>
+      <input type="text" id="notifyTarget" value="https://ntfy.sh/mein-backup-topic">
+    </div>
+  </div>
+  <label style="margin-top:16px;"><input type="checkbox" id="enableVersion"> Versionierung mit Rollback aktivieren</label>
+  <label>Anzahl behaltener Versionen</label>
+  <input type="text" id="versionKeep" value="7">
+</fieldset>
+
+<h2>3. Container</h2>
+<div id="containerList"></div>
+<div class="actions">
+  <button class="secondary" onclick="addContainer()">+ Container hinzufuegen</button>
+</div>
+
+<h2>4. Script generieren</h2>
+<div class="actions">
+  <button class="primary" onclick="generateScript()">Script generieren</button>
+  <button class="secondary" onclick="downloadScript()">Als .sh herunterladen</button>
+</div>
+
+<textarea id="output" readonly></textarea>
+
+<script>
+let containerCount = 0;
+
+function addContainer() {
+  containerCount++;
+  const id = containerCount;
+  const div = document.createElement('div');
+  div.className = 'container-block';
+  div.id = 'container-' + id;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="removeContainer(${id})">Entfernen</button>
+    <label>Container-Name<span class="hint"> (exakt wie in Portainer/docker ps)</span></label>
+    <input type="text" id="c${id}_name" placeholder="z.B. matchtreff_padel_web">
+
+    <label>Sicherungs-Typ</label>
+    <select id="c${id}_type">
+      <option value="full">Vollsicherung (Image commit/save) + Volume</option>
+      <option value="volume_only">Nur Volume/Daten (kein commit)</option>
+      <option value="full_db">Vollsicherung + Volume + Postgres-Dump</option>
+    </select>
+
+    <label>Volume/Bind Quellpfad<span class="hint"> (aus find_volumes.sh)</span></label>
+    <input type="text" id="c${id}_volpath" placeholder="/mnt/dietpi_userdata/docker-data/volumes/xxx/_data">
+
+    <div class="row db-fields" id="c${id}_dbfields" style="display:none;">
+      <div>
+        <label>DB-Container-Name</label>
+        <input type="text" id="c${id}_dbcontainer" placeholder="z.B. hai_anythingmcp_postgres">
+      </div>
+      <div>
+        <label>DB-Benutzer</label>
+        <input type="text" id="c${id}_dbuser" placeholder="postgres">
+      </div>
+    </div>
+  `;
+  document.getElementById('containerList').appendChild(div);
+
+  document.getElementById('c' + id + '_type').addEventListener('change', function() {
+    document.getElementById('c' + id + '_dbfields').style.display = (this.value === 'full_db') ? 'flex' : 'none';
+  });
+}
+
+function removeContainer(id) {
+  document.getElementById('container-' + id).remove();
+}
+
+function sanitize(name) {
+  return name.replace(/[^a-zA-Z0-9_-]/g, '_');
+}
+
+function generateScript() {
+  const hostName = document.getElementById('hostName').value.trim() || 'HOST';
+  const hostId = document.getElementById('hostId').value.trim() || '0';
+  const nasMount = document.getElementById('nasMount').value.trim() || 'NAS_MOUNT';
+  const backupTmp = document.getElementById('backupTmp').value.trim() || '/home/BACKUP';
+  const pruneAge = document.getElementById('pruneAge').value.trim() || '48h';
+
+  const enableNotify = document.getElementById('enableNotify').checked;
+  const notifyMethod = document.getElementById('notifyMethod').value;
+  const notifyTarget = document.getElementById('notifyTarget').value.trim();
+
+  const enableVersion = document.getElementById('enableVersion').checked;
+  const versionKeep = document.getElementById('versionKeep').value.trim() || '7';
+
+  let script = `#!/bin/bash
+###############################################################
+# Full Backup Script - Host: ${hostName}
+# Generiert mit hAI.FullBackupScript Generator
+###############################################################
+
+HOST_ID="${hostId}"
+NAS_BASE="/mnt/${nasMount}/Sicherung/${hostName}"
+BACKUP_TMP="${backupTmp}"
+IMAGE_PRUNE_AGE="${pruneAge}"
+
+ENABLE_NOTIFICATIONS=${enableNotify}
+ENABLE_VERSIONING=${enableVersion}
+
+NTFY_URL="${notifyMethod === 'ntfy' ? notifyTarget : ''}"
+NOTIFY_EMAIL="${notifyMethod === 'mail' ? notifyTarget : ''}"
+NOTIFY_METHOD="${notifyMethod}"
+
+VERSION_TIMESTAMP=$(date +%Y-%m-%d_%H-%M)
+VERSION_KEEP_COUNT=${versionKeep}
+
+ERROR_LOG="/tmp/full_backup_\${HOST_ID}_errors.log"
+> "$ERROR_LOG"
+
+run_step() {
+  "$@"
+  local status=$?
+  if [ $status -ne 0 ]; then
+    echo "FEHLER (exit $status): $*" >> "$ERROR_LOG"
+  fi
+  return $status
+}
+
+notify() {
+  local message="$1"
+  [ "$ENABLE_NOTIFICATIONS" != "true" ] && return 0
+  case "$NOTIFY_METHOD" in
+    ntfy) curl -s -d "$message" "$NTFY_URL" >/dev/null 2>&1 ;;
+    mail) echo "$message" | mail -s "Backup ${hostName} - Status" "$NOTIFY_EMAIL" >/dev/null 2>&1 ;;
+    *) : ;;
+  esac
+}
+
+backup_rsync() {
+  local source="$1"
+  local dest_base="$2"
+  if [ "$ENABLE_VERSIONING" = "true" ]; then
+    local dest="\${dest_base%/}/\${VERSION_TIMESTAMP}/"
+    mkdir -p "$dest"
+    run_step rsync -Pru "$source" "$dest"
+    ls -1dt "\${dest_base%/}"/*/ 2>/dev/null | tail -n +$((VERSION_KEEP_COUNT + 1)) | xargs -r rm -rf
+  else
+    run_step rsync -Pru --delete "$source" "$dest_base"
+  fi
+}
+
+##############################
+### Docker Cleanup
+##############################
+run_step docker image prune -a -f --filter "until=\${IMAGE_PRUNE_AGE}"
+
+##############################
+### Portainer Config Backup
+##############################
+backup_rsync /mnt/dietpi_userdata/docker-data/volumes/portainer_data/_data "\${NAS_BASE}/portainer/"
+`;
+
+  const blocks = document.querySelectorAll('.container-block');
+  blocks.forEach(block => {
+    const id = block.id.split('-')[1];
+    const name = document.getElementById(`c${id}_name`).value.trim();
+    if (!name) return;
+    const type = document.getElementById(`c${id}_type`).value;
+    const volPath = document.getElementById(`c${id}_volpath`).value.trim();
+    const safeName = sanitize(name);
+
+    if (type === 'full' || type === 'full_db') {
+      script += `
+##############################
+### ${name} - Vollsicherung (Image + Volume)
+##############################
+CONTAINER="${name}"
+IMAGE_TAG="${safeName}_\${HOST_ID}"
+BACKUP_DIR="\${BACKUP_TMP}/${safeName}Backup"
+NAS_DIR="\${NAS_BASE}/${safeName}/Docker"
+
+mkdir -p "\${BACKUP_DIR}"
+run_step docker commit -p "\${CONTAINER}" "\${IMAGE_TAG}"
+run_step docker save -o "\${BACKUP_DIR}/\${IMAGE_TAG}.tar" "\${IMAGE_TAG}"
+run_step gzip -f "\${BACKUP_DIR}/\${IMAGE_TAG}.tar"
+mkdir -p "\${NAS_DIR}"
+backup_rsync "\${BACKUP_DIR}/\${IMAGE_TAG}.tar.gz" "\${NAS_DIR}/"
+run_step docker rmi "\${IMAGE_TAG}:latest"
+`;
+    }
+
+    if (volPath) {
+      script += `
+##############################
+### ${name} - Volume/Bind Backup (nur Daten)
+##############################
+backup_rsync "${volPath}" "\${NAS_BASE}/${safeName}/"
+`;
+    }
+
+    if (type === 'full_db') {
+      const dbContainer = document.getElementById(`c${id}_dbcontainer`).value.trim() || name;
+      const dbUser = document.getElementById(`c${id}_dbuser`).value.trim() || 'postgres';
+      const safeDb = sanitize(dbContainer);
+      script += `
+##############################
+### ${dbContainer} - Postgres SQL-Dump
+##############################
+DB_DUMP_DIR="\${BACKUP_TMP}/${safeDb}Dump"
+mkdir -p "\${DB_DUMP_DIR}"
+run_step bash -c "docker exec -t '${dbContainer}' pg_dumpall -U '${dbUser}' > '\${DB_DUMP_DIR}/${safeDb}_\${HOST_ID}.sql'"
+run_step gzip -f "\${DB_DUMP_DIR}/${safeDb}_\${HOST_ID}.sql"
+mkdir -p "\${NAS_BASE}/${safeName}/PostgresDump"
+backup_rsync "\${DB_DUMP_DIR}/${safeDb}_\${HOST_ID}.sql.gz" "\${NAS_BASE}/${safeName}/PostgresDump/"
+`;
+    }
+  });
+
+  script += `
+##############################
+### Backup Scripts selbst sichern
+##############################
+backup_rsync /home/Scripts "\${NAS_BASE}/Scripts/"
+
+##############################
+### Crontab Backup
+##############################
+mkdir -p /home/BACKUP/CronBackup/
+cd /home/BACKUP/CronBackup/ || exit 1
+crontab -l > "my_crontab_\${HOST_ID}.backup"
+backup_rsync /home/BACKUP/CronBackup/ "\${NAS_BASE}/CronBackup/"
+
+##############################
+### Abschluss-Benachrichtigung
+##############################
+if [ -s "$ERROR_LOG" ]; then
+  notify "Backup ${hostName} (\${HOST_ID}) FEHLGESCHLAGEN:
+$(cat "$ERROR_LOG")"
+else
+  notify "Backup ${hostName} (\${HOST_ID}) erfolgreich abgeschlossen."
+fi
+`;
+
+  document.getElementById('output').value = script;
+}
+
+function downloadScript() {
+  const content = document.getElementById('output').value;
+  if (!content) { generateScript(); }
+  const finalContent = document.getElementById('output').value;
+  const hostId = document.getElementById('hostId').value.trim() || '0';
+  const blob = new Blob([finalContent], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `full_backup_${hostId}.sh`;
+  a.click();
+}
+
+// Start mit einem Beispiel-Container
+addContainer();
+</script>
+
+</body>
+</html>
