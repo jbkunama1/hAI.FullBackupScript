@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hAI.FullBackupScript</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #222; }
+  h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+  code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px; }
+  pre { background: #1e1e1e; color: #eee; padding: 16px; border-radius: 8px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+  th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+  th { background: #f4f4f4; }
+  .badge { display: inline-block; background: #2ea44f; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+  a { color: #0969da; }
+</style>
+</head>
+<body>
+  <span class="badge">Docker Backup Template</span>
+  <h1>hAI.FullBackupScript</h1>
+  <p>Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Containern
+  (Image + Volumes + optionalem DB-Dump) auf ein NAS, inklusive Crontab-Backup.</p>
+
+  <h2>Ablauf</h2>
+  <ol>
+    <li>Volume-Pfade mit <code>find_volumes.sh</code> ermitteln</li>
+    <li>Platzhalter im Template ersetzen</li>
+    <li>Testlauf durchfuehren</li>
+    <li>Als Cronjob automatisieren</li>
+  </ol>
+
+  <h2>Dateien</h2>
+  <table>
+    <tr><th>Datei</th><th>Zweck</th></tr>
+    <tr><td><code>scripts/full_backup_template.sh</code></td><td>Haupt-Backup-Script mit Platzhaltern</td></tr>
+    <tr><td><code>scripts/find_volumes.sh</code></td><td>Ermittelt Volume-/Bind-Pfade aller Container</td></tr>
+    <tr><td><code>docs/ANLEITUNG.md</code></td><td>Schritt-fuer-Schritt Setup-Anleitung</td></tr>
+    <tr><td><code>docs/crontab_beispiel.txt</code></td><td>Beispiel-Cronjob-Zeile</td></tr>
+  </table>
+
+  <h2>Schnellstart</h2>
+  <pre>chmod +x scripts/find_volumes.sh
+./scripts/find_volumes.sh
+
+cp scripts/full_backup_template.sh full_backup_5.sh
+nano full_backup_5.sh   # Platzhalter ersetzen
+
+bash full_backup_5.sh   # Testlauf</pre>
+
+  <h2>Cronjob</h2>
+  <pre>0 3 * * * /bin/bash /home/Scripts/full_backup_5.sh >> /home/Scripts/full_backup_5.log 2>&1</pre>
+
+  <p>Vollstaendige Anleitung: <a href="ANLEITUNG.md">docs/ANLEITUNG.md</a> &middot;
+  Repo: <a href="https://github.com/">GitHub</a></p>
+
+  <hr>
+  <p style="color:#888; font-size: 13px;">Erstellt und gepflegt fuer wiederverwendbare Docker-Backups. Kein Ersatz fuer getestete Restore-Prozesse.</p>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Logs
+*.log
+
+# Lokale, mit echten Daten gefuellte Backup-Scripts
+full_backup_*.sh
+!scripts/full_backup_template.sh
+
+# System
+.DS_Store
