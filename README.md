@@ -1,5 +1,9 @@
 # hAI.FullBackupScript
 
+<a href="https://www.buymeacoffee.com/highfish">
+<img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174">
+</a>
+
 ![Bash](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Backup-2496ED?logo=docker&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
@@ -86,3 +90,4 @@ Test-Host durchfuehren. Ein Backup, das nie zurueckgespielt wurde, ist nicht ver
 
 MIT-Lizenz, siehe [LICENSE](LICENSE). Keine Gewaehrleistung fuer Datensicherheit --
 immer Testlauf und Restore-Test vor produktivem Einsatz durchfuehren.
+
