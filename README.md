@@ -4,12 +4,12 @@
 <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174">
 </a>
 
-![Bash](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Backup-2496ED?logo=docker&logoColor=white)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
-![Status](https://img.shields.io/badge/status-active-brightgreen)
-![Maintained](https://img.shields.io/badge/maintained-yes-blue)
+[![Bash](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://github.com/jbkunama1/hAI.FullBackupScript)
+[![Docker](https://img.shields.io/badge/Docker-Backup-2496ED?logo=docker&logoColor=white)](https://github.com/jbkunama1/hAI.FullBackupScript)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jbkunama1/hAI.FullBackupScript)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/jbkunama1/hAI.FullBackupScript)
+[![Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com/jbkunama1/hAI.FullBackupScript)
+[![Maintained](https://img.shields.io/badge/maintained-yes-blue)](https://github.com/jbkunama1/hAI.FullBackupScript)
 
 Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Containern
 (Image + Volumes + optionalem DB-Dump) auf ein NAS, inklusive Crontab-Backup.
@@ -90,4 +90,3 @@ Test-Host durchfuehren. Ein Backup, das nie zurueckgespielt wurde, ist nicht ver
 
 MIT-Lizenz, siehe [LICENSE](LICENSE). Keine Gewaehrleistung fuer Datensicherheit --
 immer Testlauf und Restore-Test vor produktivem Einsatz durchfuehren.
-
