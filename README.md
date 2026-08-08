@@ -1,8 +1,6 @@
 # hAI.FullBackupScript
 
-<a href="https://www.buymeacoffee.com/highfish">
-<img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174">
-</a>
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/highfish)
 
 [![Bash](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://github.com/jbkunama1/hAI.FullBackupScript)
 [![Docker](https://img.shields.io/badge/Docker-Backup-2496ED?logo=docker&logoColor=white)](https://github.com/jbkunama1/hAI.FullBackupScript)
