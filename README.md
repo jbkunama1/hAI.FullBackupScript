@@ -1,4 +1,4 @@
-# hAI.FullBackupScript
+# 🚀 hAI.FullBackupScript
 
 [![Buy me a coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/highfish)
 
@@ -12,7 +12,7 @@
 Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Containern
 (Image + Volumes + optionalem DB-Dump) auf ein NAS, inklusive Crontab-Backup.
 
-## Was macht dieses Repo?
+## 📖 Was macht dieses Repo?
 
 - **Vollsicherung pro Container**: `docker commit` + `docker save` + `gzip` + `rsync` aufs NAS
 - **Volume/Bind-Sicherung**: reine Datenverzeichnisse werden zusaetzlich per rsync gespiegelt
@@ -21,7 +21,7 @@ Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Container
 - **Volume-Finder**: findet automatisch die Mount-Pfade jedes Containers
 - **Optional**: Fehler-Benachrichtigung (ntfy/E-Mail) und Versionierung mit Rollback
 
-## Dateien
+## 📚 Dateien
 
 | Datei | Zweck |
 |---|---|
@@ -34,17 +34,17 @@ Wiederverwendbares Bash-Template zum vollstaendigen Sichern von Docker-Container
 | `CHANGELOG.md` | Versionsverlauf des Templates |
 | `LICENSE` | MIT-Lizenz |
 
-## Quickstart
+## 🚀 Quickstart
 
 1. Repo klonen bzw. auf den Docker-Host kopieren.
 2. `scripts/find_volumes.sh` anpassen (Containernamen eintragen) und ausfuehren, um die echten Volume-Pfade zu bekommen.
 3. `scripts/full_backup_template.sh` kopieren (z.B. als `full_backup_5.sh`) und alle `<PLATZHALTER>` durch echte Werte ersetzen.
 4. Testlauf: `bash full_backup_5.sh`
-5. Cronjob einrichten, siehe `docs/crontab_beispiel.txt`.
+5. Cronjob einrichten, sieh `docs/crontab_beispiel.txt`.
 
-Details siehe [docs/ANLEITUNG.md](docs/ANLEITUNG.md).
+Details sieh [docs/ANLEITUNG.md](docs/ANLEITUNG.md).
 
-## Optionale Features (seit v1.1.0)
+## 📦 Optionale Features (seit v1.1.0)
 
 Im Kopf des Scripts stehen zwei Schalter, standardmaessig deaktiviert:
 
@@ -57,9 +57,9 @@ ENABLE_VERSIONING=false      # Zeitstempel-Ordner statt --delete (Rollback moegl
 - **Versionierung**: legt pro Lauf einen Zeitstempel-Ordner an statt zu ueberschreiben,
   behaelt automatisch die letzten `VERSION_KEEP_COUNT` Versionen (Rollback moeglich).
 
-Details und Aktivierung siehe Abschnitt 8 in [docs/ANLEITUNG.md](docs/ANLEITUNG.md).
+Details und Aktivierung sieh Abschnitt 8 in [docs/ANLEITUNG.md](docs/ANLEITUNG.md).
 
-## Wiederherstellung im Notfall
+## 🛡️ Wiederherstellung im Notfall
 
 Wenn ein Container oder eine Datenbank wiederhergestellt werden muss, folge
 [docs/RESTORE.md](docs/RESTORE.md). Dort findest du fertige Befehle fuer:
@@ -72,19 +72,19 @@ Wenn ein Container oder eine Datenbank wiederhergestellt werden muss, folge
 **Empfehlung**: Mindestens 1x pro Quartal einen echten Restore-Test auf einem
 Test-Host durchfuehren. Ein Backup, das nie zurueckgespielt wurde, ist nicht verifiziert.
 
-## Platzhalter-Uebersicht
+## 📖 Platzhalter-Uebersicht
 
 | Platzhalter | Bedeutung | Beispiel |
 |---|---|---|
 | `<HOSTNAME>` / `<HOST_NAME>` | Name des Docker-Hosts | highfish5 |
-| `<HOST_ID>` | Kurz-ID des Hosts | 5, 10 |
+| `<HOST_ID>` | kurz-ID des Hosts | 5, 10 |
 | `<NAS_MOUNT>` | Mount-Punkt des NAS | highfishNAS25 |
 | `<CONTAINER_NAME>` | Exakter Container-Name | matchtreff_padel_web |
 | `<VOLUME_SOURCE_PATH>` | Pfad aus find_volumes.sh Output | /mnt/dietpi_userdata/docker-data/volumes/xyz/_data |
 | `<DB_CONTAINER_NAME>` | Name des DB-Containers | hai_anythingmcp_postgres |
 | `<DB_USER>` | DB-Benutzername | postgres |
 
-## Lizenz
+## 📄 Lizenz
 
-MIT-Lizenz, siehe [LICENSE](LICENSE). Keine Gewaehrleistung fuer Datensicherheit --
+MIT-Lizenz, sieh [LICENSE](LICENSE). Keine Gewaehrleistung fuer Datensicherheit --
 immer Testlauf und Restore-Test vor produktivem Einsatz durchfuehren.
